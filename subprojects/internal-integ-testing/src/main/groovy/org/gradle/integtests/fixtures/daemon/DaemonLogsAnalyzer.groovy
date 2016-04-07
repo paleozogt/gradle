@@ -49,6 +49,10 @@ class DaemonLogsAnalyzer implements DaemonsFixture {
         return new DaemonLogsAnalyzer(daemonBaseDir, version)
     }
 
+    File getBaseDir() {
+        return baseDir;
+    }
+
     DaemonRegistry getRegistry() {
         return registry
     }
