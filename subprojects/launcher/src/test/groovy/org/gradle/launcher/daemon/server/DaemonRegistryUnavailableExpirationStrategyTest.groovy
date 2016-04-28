@@ -25,7 +25,6 @@ class DaemonRegistryUnavailableExpirationStrategyTest extends Specification {
     @Rule TestNameTestDirectoryProvider tempDir = new TestNameTestDirectoryProvider()
     final Daemon daemon = Mock(Daemon)
     final DaemonContext daemonContext = Mock(DaemonContext)
-    final DaemonDir daemonDir = Mock(DaemonDir)
 
     def "daemon should expire when registry file is unreachable"() {
         given:
@@ -34,10 +33,11 @@ class DaemonRegistryUnavailableExpirationStrategyTest extends Specification {
         when:
         1 * daemon.getDaemonContext() >> { daemonContext }
         1 * daemonContext.getDaemonRegistryDir() >> { tempDir.file("test_daemon_registry") }
-        boolean daemonShouldExpire = expirationStrategy.shouldExpire(daemon)
+        DaemonExpirationResult expirationCheck = expirationStrategy.checkExpiration(daemon)
 
         then:
-        daemonShouldExpire
+        expirationCheck.expired
+        expirationCheck.reason == "daemon registry became unreadable"
     }
 
     def "daemon should not expire given readable registry"() {
@@ -51,6 +51,8 @@ class DaemonRegistryUnavailableExpirationStrategyTest extends Specification {
         1 * daemonContext.getDaemonRegistryDir() >> { daemonDir.baseDir }
 
         then:
-        !expirationStrategy.shouldExpire(daemon)
+        DaemonExpirationResult expirationCheck = expirationStrategy.checkExpiration(daemon)
+        !expirationCheck.expired
+        expirationCheck.reason == null
     }
 }

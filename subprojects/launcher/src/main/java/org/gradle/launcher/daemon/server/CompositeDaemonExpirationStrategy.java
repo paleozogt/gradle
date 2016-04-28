@@ -18,7 +18,6 @@ package org.gradle.launcher.daemon.server;
 import java.util.List;
 
 public class CompositeDaemonExpirationStrategy implements DaemonExpirationStrategy {
-
     private Iterable<DaemonExpirationStrategy> expirationStrategies;
 
     public CompositeDaemonExpirationStrategy(List<DaemonExpirationStrategy> expirationStrategies) {
@@ -26,12 +25,13 @@ public class CompositeDaemonExpirationStrategy implements DaemonExpirationStrate
     }
 
     @Override
-    public boolean shouldExpire(Daemon daemon) {
+    public DaemonExpirationResult checkExpiration(Daemon daemon) {
         for (DaemonExpirationStrategy expirationStrategy : expirationStrategies) {
-            if (expirationStrategy.shouldExpire(daemon)) {
-                return true;
+            DaemonExpirationResult expirationResult = expirationStrategy.checkExpiration(daemon);
+            if (expirationResult.isExpired()) {
+                return expirationResult;
             }
         }
-        return false;
+        return new DaemonExpirationResult(false, null);
     }
 }

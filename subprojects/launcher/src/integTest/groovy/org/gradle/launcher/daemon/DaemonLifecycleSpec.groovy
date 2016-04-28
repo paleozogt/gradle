@@ -263,7 +263,7 @@ class DaemonLifecycleSpec extends DaemonIntegrationSpec {
         stopped()
     }
 
-    def "daemon stops immediately if registry is deleted"() {
+    def "daemon stops after current build if registry is deleted"() {
         when:
         startBuild()
         waitForBuildToWait()
@@ -275,7 +275,7 @@ class DaemonLifecycleSpec extends DaemonIntegrationSpec {
         }
 
         then:
-        buildFailed()
+        completeBuild()
 
         and:
         stopped()

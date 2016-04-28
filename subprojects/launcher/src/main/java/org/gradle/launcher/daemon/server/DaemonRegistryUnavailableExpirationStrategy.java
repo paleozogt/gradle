@@ -25,18 +25,18 @@ public class DaemonRegistryUnavailableExpirationStrategy implements DaemonExpira
     private static final Logger LOG = Logging.getLogger(DaemonRegistryUnavailableExpirationStrategy.class);
 
     @Override
-    public boolean shouldExpire(Daemon daemon) {
+    public DaemonExpirationResult checkExpiration(Daemon daemon) {
         try {
             File daemonRegistryDir = daemon.getDaemonContext().getDaemonRegistryDir();
             if (!new DaemonDir(daemonRegistryDir).getRegistry().canRead()) {
                 LOG.warn("Daemon registry {} became unreadable. Expiring daemon.", daemonRegistryDir);
-                return true;
+                return new DaemonExpirationResult(true, "daemon registry became unreadable");
             }
         } catch (SecurityException se) {
             LOG.warn("Daemon registry became inaccessible. Expiring daemon. Error message is '{}'", se.getMessage());
-            return true;
+            return new DaemonExpirationResult(true, "daemon registry became inaccessible");
         }
-        return false;
+        return new DaemonExpirationResult(false, null);
     }
 }
 

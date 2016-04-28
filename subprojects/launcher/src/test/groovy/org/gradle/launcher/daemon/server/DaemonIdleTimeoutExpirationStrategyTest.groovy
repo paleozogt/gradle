@@ -29,9 +29,11 @@ class DaemonIdleTimeoutExpirationStrategyTest extends Specification {
 
         when:
         1 * daemon.getStateCoordinator() >> { daemonStateCoordinator }
-        1 * daemonStateCoordinator.getIdleMillis() >> { 101L }
+        1 * daemonStateCoordinator.getIdleMillis(_) >> { 101L }
 
         then:
-        expirationStrategy.shouldExpire(daemon)
+        DaemonExpirationResult result = expirationStrategy.checkExpiration(daemon)
+        result.isExpired()
+        result.reason == "daemon has been idle for 101 milliseconds"
     }
 }

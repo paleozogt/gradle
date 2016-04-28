@@ -13,8 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.gradle.launcher.daemon.server;
 
-public interface DaemonExpirationStrategy {
-    DaemonExpirationResult checkExpiration(Daemon daemon);
+public class DaemonExpirationResult {
+    private final boolean expired;
+    private final String reason;
+
+    DaemonExpirationResult(boolean expired, String reason) {
+        this.expired = expired;
+        this.reason = reason;
+    }
+
+    public boolean isExpired() {
+        return expired;
+    }
+
+    public String getReason() {
+        return reason;
+    }
 }

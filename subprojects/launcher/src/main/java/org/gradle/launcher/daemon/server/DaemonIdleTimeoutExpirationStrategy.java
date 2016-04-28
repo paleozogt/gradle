@@ -31,13 +31,14 @@ public class DaemonIdleTimeoutExpirationStrategy implements DaemonExpirationStra
     }
 
     @Override
-    public boolean shouldExpire(Daemon daemon) {
-        long idleMillis = daemon.getStateCoordinator().getIdleMillis();
+    public DaemonExpirationResult checkExpiration(Daemon daemon) {
+        long idleMillis = daemon.getStateCoordinator().getIdleMillis(System.currentTimeMillis());
         boolean idleTimeoutExceeded = idleMillis > timeUnit.toMillis(idleTimeout);
         if (idleTimeoutExceeded) {
             LOG.info("Idle timeout: daemon has been idle for {} milliseconds. Expiring.", idleMillis);
+            return new DaemonExpirationResult(true, "daemon has been idle for " + idleMillis + " milliseconds");
         }
-        return idleTimeoutExceeded;
+        return new DaemonExpirationResult(false, null);
     }
 
     public long getIdleTimeout() {

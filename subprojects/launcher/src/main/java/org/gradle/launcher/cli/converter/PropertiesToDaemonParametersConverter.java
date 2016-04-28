@@ -44,7 +44,7 @@ public class PropertiesToDaemonParametersConverter {
             try {
                 target.setPeriodicCheckInterval(new Integer(prop));
             } catch (NumberFormatException e) {
-                throw new GradleException(String.format("Unable to parse %s property. Expected an int but got: %s", PERIODIC_CHECK_INTERVAL_PROPERTY, prop));
+                throw new GradleException(String.format("Unable to parse %s property. Expected an int but got: %s", PERIODIC_CHECK_INTERVAL_PROPERTY, prop), e);
             }
         }
 

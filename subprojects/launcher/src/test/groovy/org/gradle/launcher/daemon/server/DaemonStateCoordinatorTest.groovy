@@ -577,4 +577,26 @@ class DaemonStateCoordinatorTest extends ConcurrentSpec {
         2 * onFinishCommand.run()
         0 * _._
     }
+
+    def "idle millis is 0 if daemon is busy"() {
+        given:
+        Runnable command = Mock()
+
+        when:
+        coordinator.runCommand(command, "some command")
+
+        then:
+        1 * command.run() >> {
+            coordinator.getIdleMillis(System.currentTimeMillis()) == 0L
+        }
+    }
+
+    def "idle millis is > 0 when daemon is idle"() {
+        when:
+        coordinator.lastActivityAt = 100
+
+        then:
+        coordinator.idle
+        coordinator.getIdleMillis(110) == 10
+    }
 }

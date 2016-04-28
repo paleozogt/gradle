@@ -239,10 +239,11 @@ public class Daemon implements Stoppable {
         @Override
         public void run() {
             LOGGER.debug("DaemonExpirationPeriodicCheck running");
-            // TODO(ew): figure out a way to get expiration reason
-            if (expirationStrategy.shouldExpire(daemon)) {
-                LOGGER.info("Daemon expiration criteria met, signaling stop");
-                daemon.getStateCoordinator().stop();
+            final DaemonExpirationResult expirationCheck = expirationStrategy.checkExpiration(daemon);
+            if (expirationCheck.isExpired()) {
+                LOGGER.info("Daemon expiration criteria met, requesting stop");
+                LOGGER.lifecycle("Daemon stopping because " + expirationCheck.getReason());
+                daemon.getStateCoordinator().requestStop();
             }
         }
     }
