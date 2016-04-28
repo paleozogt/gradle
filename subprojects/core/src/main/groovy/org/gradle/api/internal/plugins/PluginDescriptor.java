@@ -18,6 +18,7 @@ package org.gradle.api.internal.plugins;
 
 import org.gradle.util.GUtil;
 
+import java.io.File;
 import java.net.URL;
 import java.util.Properties;
 
@@ -36,6 +37,10 @@ public class PluginDescriptor {
 
     public URL getPropertiesFileUrl() {
         return propertiesFileUrl;
+    }
+
+    public String getPluginId() {
+        return new File(propertiesFileUrl.getFile()).getName().replace(".properties", "");
     }
 
     @Override

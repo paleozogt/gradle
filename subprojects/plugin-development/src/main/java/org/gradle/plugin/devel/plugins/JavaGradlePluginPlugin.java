@@ -16,6 +16,8 @@
 
 package org.gradle.plugin.devel.plugins;
 
+import com.beust.jcommander.internal.Lists;
+import com.google.common.base.CaseFormat;
 import org.gradle.api.*;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
@@ -28,10 +30,21 @@ import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
+import org.gradle.api.publish.Publication;
+import org.gradle.api.publish.PublicationContainer;
+import org.gradle.api.publish.PublishingExtension;
+import org.gradle.api.publish.ivy.IvyModuleDescriptorSpec;
+import org.gradle.api.publish.ivy.IvyPublication;
+import org.gradle.api.publish.maven.MavenPublication;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.bundling.Jar;
+import org.gradle.api.tasks.util.PatternSet;
 import org.gradle.plugin.devel.GradlePluginDevelopmentExtension;
 import org.gradle.plugin.devel.tasks.PluginUnderTestMetadata;
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -64,9 +77,10 @@ public class JavaGradlePluginPlugin implements Plugin<Project> {
     public void apply(Project project) {
         project.getPluginManager().apply(JavaPlugin.class);
         applyDependencies(project);
-        configureJarTask(project);
         GradlePluginDevelopmentExtension extension = createExtension(project);
+        configureJarTask(project);
         configureTestKit(project, extension);
+        configureMarkerPublishing(project, extension);
     }
 
     private void applyDependencies(Project project) {
@@ -121,6 +135,94 @@ public class JavaGradlePluginPlugin implements Plugin<Project> {
 
     private void establishTestKitAndPluginClasspathDependencies(Project project, GradlePluginDevelopmentExtension extension, PluginUnderTestMetadata pluginClasspathTask) {
         project.afterEvaluate(new TestKitAndPluginClasspathDependenciesAction(extension, pluginClasspathTask));
+    }
+
+    private void configureMarkerPublishing(final Project project, final GradlePluginDevelopmentExtension pluginDevelopment) {
+        project.afterEvaluate(new Action<Project>() {
+            @Override
+            public void execute(final Project project) {
+                if (!pluginDevelopment.isPublishPluginMarkers()) {
+                    return;
+                }
+                PublishingExtension publishing = project.getExtensions().findByType(PublishingExtension.class);
+                if (publishing == null) {
+                    return;
+                }
+                final List<PluginDescriptor> descriptors = Lists.newArrayList();
+                //TODO code duplicated from PluginDescriptorCollectorAction
+                for (File file : pluginDevelopment.getPluginSourceSet().getAllSource().matching(new PatternSet().include(PLUGIN_DESCRIPTOR_PATTERN)).getFiles()) {
+                    PluginDescriptor descriptor;
+                    try {
+                        descriptor = new PluginDescriptor(file.toURI().toURL());
+                    } catch (MalformedURLException e) {
+                        // Not sure under what scenario (if any) this would occur,
+                        // but there's no sense in collecting the descriptor if it does.
+                        return;
+                    }
+                    if (descriptor.getImplementationClassName() != null) {
+                        descriptors.add(descriptor);
+                    }
+                }
+
+                publishing.publications(new Action<PublicationContainer>() {
+                    @Override
+                    public void execute(PublicationContainer publications) {
+                        for (PluginDescriptor descriptor : descriptors) {
+                            String pluginId = descriptor.getPluginId();
+                            String taskFriendlyId = CaseFormat.LOWER_HYPHEN.to(CaseFormat.LOWER_CAMEL, descriptor.getPluginId().replace('.', '-'));
+                            if (project.getPluginManager().hasPlugin("maven-publish")) {
+                                MavenPublication publication = publications.create(taskFriendlyId + "MavenMarker", MavenPublication.class);
+                                publication.setArtifactId(pluginId);
+                                publication.setGroupId(pluginId);
+                                publication.getPom().withXml(new Action<XmlProvider>() {
+                                    @Override
+                                    public void execute(XmlProvider xmlProvider) {
+                                        Element root = xmlProvider.asElement();
+                                        Document document = root.getOwnerDocument();
+                                        Node dependencies = root.appendChild(document.createElement("dependencies"));
+                                        Node dependency = dependencies.appendChild(document.createElement("dependency"));
+                                        Node groupId = dependency.appendChild(document.createElement("groupId"));
+                                        groupId.setTextContent(project.getGroup().toString());
+                                        Node artifactId = dependency.appendChild(document.createElement("artifactId"));
+                                        artifactId.setTextContent(project.getName());
+                                        Node version = dependency.appendChild(document.createElement("version"));
+                                        version.setTextContent(project.getVersion().toString());
+                                    }
+                                });
+                            }
+                            if (project.getPluginManager().hasPlugin("ivy-publish")) {
+                                IvyPublication publication = publications.create(taskFriendlyId + "IvyMarker", IvyPublication.class);
+                                publication.setOrganisation(pluginId);
+                                publication.setModule(pluginId);
+                                publication.descriptor(new Action<IvyModuleDescriptorSpec>() {
+                                    @Override
+                                    public void execute(IvyModuleDescriptorSpec descriptor) {
+                                        descriptor.withXml(new Action<XmlProvider>() {
+                                            @Override
+                                            public void execute(XmlProvider xmlProvider) {
+                                                Element root = xmlProvider.asElement();
+                                                Document document = root.getOwnerDocument();
+                                                Node dependencies = root.getElementsByTagName("dependencies").item(0);
+                                                Node dependency = dependencies.appendChild(document.createElement("dependency"));
+                                                Attr org = document.createAttribute("org");
+                                                org.setValue(project.getGroup().toString());
+                                                dependency.getAttributes().setNamedItem(org);
+                                                Attr name = document.createAttribute("name");
+                                                name.setValue(project.getName());
+                                                dependency.getAttributes().setNamedItem(name);
+                                                Attr rev = document.createAttribute("rev");
+                                                rev.setValue(project.getVersion().toString());
+                                                dependency.getAttributes().setNamedItem(rev);
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                         }
+                    }
+                });
+            }
+        });
     }
 
     /**

@@ -47,6 +47,7 @@ public class GradlePluginDevelopmentExtension {
 
     private SourceSet pluginSourceSet;
     private Set<SourceSet> testSourceSets = Collections.emptySet();
+    private boolean publishPluginMarkers = true;
 
     public GradlePluginDevelopmentExtension(SourceSet pluginSourceSet, SourceSet testSourceSet) {
         this(pluginSourceSet, new SourceSet[] {testSourceSet});
@@ -93,5 +94,13 @@ public class GradlePluginDevelopmentExtension {
      */
     public Set<SourceSet> getTestSourceSets() {
         return testSourceSets;
+    }
+
+    public boolean isPublishPluginMarkers() {
+        return publishPluginMarkers;
+    }
+
+    public void setPublishPluginMarkers(boolean publishPluginMarkers) {
+        this.publishPluginMarkers = publishPluginMarkers;
     }
 }
