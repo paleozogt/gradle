@@ -60,6 +60,15 @@ class GenericFileSystem implements FileSystem {
     }
 
     @Override
+    public File readSymbolicLink(File link) throws FileException {
+        try {
+            return symlink.readLink(link);
+        } catch (Exception e) {
+            throw new FileException(String.format("Could not read symlink at '%s'.", link.getPath()), e);
+        }
+    }
+
+    @Override
     public boolean isSymlink(File suspect) {
         return symlink.isSymlink(suspect);
     }

@@ -33,6 +33,11 @@ class WindowsSymlink implements Symlink {
     }
 
     @Override
+    public File readLink(File link) throws IOException {
+        throw new IOException("Reading symlinks is not supported on this platform.");
+    }
+
+    @Override
     public boolean isSymlink(File suspect) {
         return false;
     }

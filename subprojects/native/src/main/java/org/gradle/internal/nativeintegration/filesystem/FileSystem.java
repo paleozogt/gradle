@@ -55,6 +55,8 @@ public interface FileSystem extends Chmod, Stat {
      */
     void createSymbolicLink(File link, File target) throws FileException;
 
+    File readSymbolicLink(File link) throws FileException;
+
     /**
      * Tells if the file is a symlink
      *

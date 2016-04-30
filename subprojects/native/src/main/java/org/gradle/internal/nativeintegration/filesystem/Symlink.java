@@ -22,6 +22,7 @@ public interface Symlink {
     boolean isSymlinkSupported();
 
     void symlink(File link, File target) throws Exception;
+    File readLink(File link) throws Exception;
 
     boolean isSymlink(File suspect);
 }

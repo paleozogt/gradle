@@ -33,6 +33,11 @@ class UnsupportedSymlink implements Symlink {
     }
 
     @Override
+    public File readLink(File link) throws Exception {
+        throw new IOException("Support for reading symlinks is only available on this platform using Java 7 or later.");
+    }
+
+    @Override
     public boolean isSymlink(File suspect) {
         return false;
     }

@@ -42,6 +42,11 @@ class NativePlatformBackedSymlink implements Symlink {
     }
 
     @Override
+    public File readLink(File link) throws Exception {
+        return new File(posixFiles.readLink(link));
+    }
+
+    @Override
     public boolean isSymlink(File suspect) {
         return posixFiles.stat(suspect).getType() == PosixFile.Type.Symlink;
     }

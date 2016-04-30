@@ -50,6 +50,11 @@ public class Jdk7Symlink implements Symlink {
     }
 
     @Override
+    public File readLink(File link) throws Exception {
+        return Files.readSymbolicLink(link.toPath()).toFile();
+    }
+
+    @Override
     public boolean isSymlink(File suspect) {
         return Files.isSymbolicLink(suspect.toPath());
     }
