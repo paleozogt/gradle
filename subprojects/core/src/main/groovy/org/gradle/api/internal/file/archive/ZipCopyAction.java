@@ -33,18 +33,24 @@ import org.gradle.api.internal.tasks.SimpleWorkResult;
 import org.gradle.api.tasks.WorkResult;
 import org.gradle.api.tasks.bundling.Zip;
 import org.gradle.internal.IoActions;
+import org.gradle.internal.nativeplatform.filesystem.FileSystem;
 
 import java.io.File;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ZipCopyAction implements CopyAction {
     private final File zipFile;
     private final ZipCompressor compressor;
+    private final FileSystem fileSystem;
     private final DocumentationRegistry documentationRegistry;
     private final String encoding;
 
-    public ZipCopyAction(File zipFile, ZipCompressor compressor, DocumentationRegistry documentationRegistry, String encoding) {
+    public ZipCopyAction(File zipFile, ZipCompressor compressor, FileSystem fileSystem, DocumentationRegistry documentationRegistry, String encoding) {
         this.zipFile = zipFile;
         this.compressor = compressor;
+        this.fileSystem= fileSystem;
         this.documentationRegistry = documentationRegistry;
         this.encoding = encoding;
     }
@@ -77,6 +83,7 @@ public class ZipCopyAction implements CopyAction {
 
     private class StreamAction implements CopyActionProcessingStreamAction {
         private final ZipOutputStream zipOutStr;
+        private final List<File> visitedSymLinks= new ArrayList<File>();
 
         public StreamAction(ZipOutputStream zipOutStr, String encoding) {
             this.zipOutStr = zipOutStr;
@@ -86,10 +93,14 @@ public class ZipCopyAction implements CopyAction {
         }
 
         public void processFile(FileCopyDetailsInternal details) {
-            if (details.isDirectory()) {
-                visitDir(details);
-            } else {
-                visitFile(details);
+            if (isSymLink(details)) {
+                visitSymLink(details);
+            } else if (!isChildOfVisitedSymlink(details)) {
+                if (details.isDirectory()) {
+                    visitDir(details);
+                } else {
+                    visitFile(details);
+                }
             }
         }
 
@@ -117,6 +128,56 @@ public class ZipCopyAction implements CopyAction {
             } catch (Exception e) {
                 throw new GradleException(String.format("Could not add %s to ZIP '%s'.", dirDetails, zipFile), e);
             }
+        }
+
+        protected void visitSymLink(FileCopyDetails fileDetails) {
+            try {
+                visitedSymLinks.add(fileDetails.getFile());
+                File targetFile= fileSystem.readSymbolicLink(fileDetails.getFile());
+
+                ZipEntry archiveEntry = new ZipEntry(fileDetails.getRelativePath().getPathString());
+                archiveEntry.setTime(fileDetails.getLastModified());
+                archiveEntry.setUnixMode(UnixStat.LINK_FLAG | fileDetails.getMode());
+                zipOutStr.putNextEntry(archiveEntry);
+                zipOutStr.write(targetFile.toString().getBytes(Charset.forName("UTF-8")));
+                zipOutStr.closeEntry();
+            } catch (Exception e) {
+                throw new GradleException(String.format("Could not add %s to ZIP '%s'.", fileDetails, zipFile), e);
+            }
+        }
+
+        // Some FileCopyDetails implementations don't actually have
+        // a real File backing them and will throw if you ask for it.
+        // TODO: should FileCopyDetails have isSymLink to make this simpler?
+        private Boolean isSymLink(FileCopyDetails fileDetails) {
+            try {
+                return fileSystem.isSymlink(fileDetails.getFile());
+            } catch (UnsupportedOperationException e) {
+                return false;
+            }
+        }
+
+        // Because FileCopyDetails will follow symlinks we need to make sure we don't try to zip them up.
+        // TODO: should FileCopyDetails have a "no follow symlinks" feature?
+        private boolean isChildOfVisitedSymlink(FileCopyDetails fileDetails) {
+            try {
+                File file = fileDetails.getFile();
+                for (File symLink : visitedSymLinks) {
+                    if (isChildOf(symLink, file)) return true;
+                }
+                return false;
+            } catch (UnsupportedOperationException e) {
+                return false;
+            }
+        }
+
+        private Boolean isChildOf(File dir, File file) {
+            File parent= file.getParentFile();
+            while (parent != null) {
+                if (dir.toString().equals(parent.toString())) return true;
+                parent= parent.getParentFile();
+            }
+            return false;
         }
     }
 }

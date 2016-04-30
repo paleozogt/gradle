@@ -57,7 +57,7 @@ public class Zip extends AbstractArchiveTask {
     @Override
     protected CopyAction createCopyAction() {
         DocumentationRegistry documentationRegistry = getServices().get(DocumentationRegistry.class);
-        return new ZipCopyAction(getArchivePath(), getCompressor(), documentationRegistry, metadataCharset);
+        return new ZipCopyAction(getArchivePath(), getCompressor(), getFileSystem(), documentationRegistry, metadataCharset);
     }
 
     /**
