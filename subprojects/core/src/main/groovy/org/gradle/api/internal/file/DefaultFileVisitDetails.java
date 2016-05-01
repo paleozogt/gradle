@@ -28,21 +28,23 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class DefaultFileVisitDetails extends DefaultFileTreeElement implements FileVisitDetails {
     private final AtomicBoolean stop;
     private final boolean isDirectory;
+    private final boolean isSymlink;
     private final long size;
     private final long lastModified;
 
     public DefaultFileVisitDetails(File file, RelativePath relativePath, AtomicBoolean stop, Chmod chmod, Stat stat, Symlink symlink) {
-        this(file, relativePath, stop, chmod, stat, symlink, file.isDirectory());
+        this(file, relativePath, stop, chmod, stat, symlink, file.isDirectory(), symlink.isSymlink(file));
     }
 
-    public DefaultFileVisitDetails(File file, RelativePath relativePath, AtomicBoolean stop, Chmod chmod, Stat stat, Symlink symlink, boolean isDirectory) {
-        this(file, relativePath, stop, chmod, stat, symlink, isDirectory, file.lastModified(), file.length());
+    public DefaultFileVisitDetails(File file, RelativePath relativePath, AtomicBoolean stop, Chmod chmod, Stat stat, Symlink symlink, boolean isDirectory, boolean isSymlink) {
+        this(file, relativePath, stop, chmod, stat, symlink, isDirectory, isSymlink, file.lastModified(), file.length());
     }
 
-    public DefaultFileVisitDetails(File file, RelativePath relativePath, AtomicBoolean stop, Chmod chmod, Stat stat, Symlink symlink, boolean isDirectory, long lastModified, long size) {
+    public DefaultFileVisitDetails(File file, RelativePath relativePath, AtomicBoolean stop, Chmod chmod, Stat stat, Symlink symlink, boolean isDirectory, boolean isSymlink, long lastModified, long size) {
         super(file, relativePath, chmod, stat, symlink);
         this.stop = stop;
         this.isDirectory = isDirectory;
+        this.isSymlink= isSymlink;
         this.lastModified = lastModified;
         this.size = size;
     }
@@ -55,6 +57,8 @@ public class DefaultFileVisitDetails extends DefaultFileTreeElement implements F
     public boolean isDirectory() {
         return isDirectory;
     }
+
+    public boolean isSymbolicLink() { return isSymlink; }
 
     @Override
     public long getSize() {

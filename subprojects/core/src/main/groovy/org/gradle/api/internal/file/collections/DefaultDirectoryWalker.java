@@ -52,7 +52,7 @@ public class DefaultDirectoryWalker implements DirectoryWalker {
             File child = children[i];
             boolean isFile = child.isFile();
             RelativePath childPath = path.append(isFile, child.getName());
-            FileVisitDetails details = new DefaultFileVisitDetails(child, childPath, stopFlag, fileSystem, fileSystem, fileSystem, !isFile);
+            FileVisitDetails details = new DefaultFileVisitDetails(child, childPath, stopFlag, fileSystem, fileSystem, fileSystem, !isFile, fileSystem.isSymlink(child));
             if (DirectoryFileTree.isAllowed(details, spec)) {
                 if (isFile) {
                     visitor.visitFile(details);
