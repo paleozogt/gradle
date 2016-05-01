@@ -148,6 +148,7 @@ public class TarFileTree implements MinimalFileTree, FileSystemMirroringFileTree
         public boolean isDirectory() {
             return entry.isDirectory();
         }
+        public boolean isSymbolicLink() { return entry.isSymbolicLink(); }
 
         public long getSize() {
             return entry.getSize();

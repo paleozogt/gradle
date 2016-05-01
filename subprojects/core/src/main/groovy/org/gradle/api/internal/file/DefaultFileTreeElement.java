@@ -54,6 +54,7 @@ public class DefaultFileTreeElement extends AbstractFileTreeElement {
     public boolean isDirectory() {
         return file.isDirectory();
     }
+    public boolean isSymbolicLink() { throw new RuntimeException("not implement yet"); }
 
     public InputStream open() {
         return GFileUtils.openInputStream(file);

@@ -68,6 +68,10 @@ public class DefaultFileCopyDetails extends AbstractFileTreeElement implements F
         return fileDetails.isDirectory();
     }
 
+    public boolean isSymbolicLink() {
+        return fileDetails.isSymbolicLink();
+    }
+
     public long getLastModified() {
         return fileDetails.getLastModified();
     }

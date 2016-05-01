@@ -38,6 +38,13 @@ public interface FileTreeElement {
     boolean isDirectory();
 
     /**
+     * Returns true if this element is a symbolic link, or false if this element is a regular file.
+     *
+     * @return true if this element is a symbolic link.
+     */
+    boolean isSymbolicLink();
+
+    /**
      * Returns the last modified time of this file at the time of file traversal.
      *
      * @return The last modified time.

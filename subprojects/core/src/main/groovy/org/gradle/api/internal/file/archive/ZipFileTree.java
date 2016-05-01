@@ -15,6 +15,7 @@
  */
 package org.gradle.api.internal.file.archive;
 
+import org.apache.tools.zip.UnixStat;
 import org.apache.tools.zip.ZipEntry;
 import org.apache.tools.zip.ZipFile;
 import org.gradle.api.GradleException;
@@ -139,6 +140,7 @@ public class ZipFileTree implements MinimalFileTree, FileSystemMirroringFileTree
         public boolean isDirectory() {
             return entry.isDirectory();
         }
+        public boolean isSymbolicLink() { return (entry.getUnixMode() & UnixStat.LINK_FLAG) == UnixStat.LINK_FLAG; }
 
         public long getSize() {
             return entry.getSize();

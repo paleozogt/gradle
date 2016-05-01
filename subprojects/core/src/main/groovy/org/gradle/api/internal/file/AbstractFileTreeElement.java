@@ -51,6 +51,8 @@ public abstract class AbstractFileTreeElement implements FileTreeElement {
         return getRelativePath().getPathString();
     }
 
+    public boolean isSymbolicLink() { return false; }
+
     public void copyTo(OutputStream output) {
         try {
             InputStream inputStream = open();
