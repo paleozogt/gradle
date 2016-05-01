@@ -133,7 +133,7 @@ public class ZipCopyAction implements CopyAction {
         protected void visitSymLink(FileCopyDetails fileDetails) {
             try {
                 visitedSymLinks.add(fileDetails.getFile());
-                File targetFile= fileSystem.readSymbolicLink(fileDetails.getFile());
+                File targetFile= fileSystem.readLink(fileDetails.getFile());
 
                 ZipEntry archiveEntry = new ZipEntry(fileDetails.getRelativePath().getPathString());
                 archiveEntry.setTime(fileDetails.getLastModified());

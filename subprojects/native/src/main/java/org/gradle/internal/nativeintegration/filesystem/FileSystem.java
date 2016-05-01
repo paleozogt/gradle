@@ -20,7 +20,7 @@ import java.io.File;
 /**
  * A file system accessible to Gradle.
  */
-public interface FileSystem extends Chmod, Stat {
+public interface FileSystem extends Chmod, Stat, Symlink {
     /**
      * Default Unix permissions for directories, {@code 755}.
      */
@@ -37,31 +37,4 @@ public interface FileSystem extends Chmod, Stat {
      * @return <tt>true</tt> if the file system is case sensitive, <tt>false</tt> otherwise
      */
     boolean isCaseSensitive();
-
-    /**
-     * Tells if the file system can create symbolic links. If the answer cannot be determined accurately,
-     * <tt>false</tt> is returned.
-     *
-     * @return <tt>true</tt> if the file system can create symbolic links, <tt>false</tt> otherwise
-     */
-    boolean canCreateSymbolicLink();
-
-    /**
-     * Creates a symbolic link to a target file.
-     *
-     * @param link the link to be created
-     * @param target the file to link to
-     * @exception FileException if the operation fails
-     */
-    void createSymbolicLink(File link, File target) throws FileException;
-
-    File readSymbolicLink(File link) throws FileException;
-
-    /**
-     * Tells if the file is a symlink
-     *
-     * @param suspect the file to check
-     * @return true if symlink, false otherwise
-     */
-    boolean isSymlink(File suspect);
 }

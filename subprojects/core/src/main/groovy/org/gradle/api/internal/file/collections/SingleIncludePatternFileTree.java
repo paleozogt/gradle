@@ -112,14 +112,14 @@ public class SingleIncludePatternFileTree implements MinimalFileTree {
         if (file.isFile()) {
             if (segmentIndex == patternSegments.size()) {
                 RelativePath path = new RelativePath(true, relativePath.toArray(new String[relativePath.size()]));
-                FileVisitDetails details = new DefaultFileVisitDetails(file, path, stopFlag, fileSystem, fileSystem);
+                FileVisitDetails details = new DefaultFileVisitDetails(file, path, stopFlag, fileSystem, fileSystem, fileSystem);
                 if (!excludeSpec.isSatisfiedBy(details)) {
                     visitor.visitFile(details);
                 }
             }
         } else if (file.isDirectory()) {
             RelativePath path = new RelativePath(false, relativePath.toArray(new String[relativePath.size()]));
-            FileVisitDetails details = new DefaultFileVisitDetails(file, path, stopFlag, fileSystem, fileSystem);
+            FileVisitDetails details = new DefaultFileVisitDetails(file, path, stopFlag, fileSystem, fileSystem, fileSystem);
             if (!excludeSpec.isSatisfiedBy(details)) {
                 visitor.visitDir(details);
             }

@@ -376,7 +376,11 @@ public class TestFile extends File {
     }
 
     public void createLink(String target) {
-        NativeServices.getInstance().get(FileSystem.class).createSymbolicLink(this, new File(target));
+        try {
+            NativeServices.getInstance().get(FileSystem.class).symlink(this, new File(target));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public String readLink() {

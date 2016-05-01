@@ -53,7 +53,7 @@ public class MinimalFileSetSnapshotter extends AbstractFileCollectionSnapshotter
         final List<FileTreeElement> fileTreeElements = new ArrayList<FileTreeElement>();
         for (File file : input.getFiles()) {
             if (file.exists()) {
-                fileTreeElements.add(new DefaultFileVisitDetails(file, fileSystem, fileSystem));
+                fileTreeElements.add(new DefaultFileVisitDetails(file, fileSystem, fileSystem, fileSystem));
             } else {
                 missingFiles.add(file);
             }

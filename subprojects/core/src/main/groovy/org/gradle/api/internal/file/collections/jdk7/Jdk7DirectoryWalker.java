@@ -87,7 +87,7 @@ public class Jdk7DirectoryWalker implements DirectoryWalker {
                     File child = file.toFile();
                     FileVisitDetails dirDetails = directoryDetailsHolder.peek();
                     RelativePath childPath = dirDetails != null ? dirDetails.getRelativePath().append(!isDirectory, child.getName()) : rootPath;
-                    return new DefaultFileVisitDetails(child, childPath, stopFlag, fileSystem, fileSystem, isDirectory, attrs.lastModifiedTime().toMillis(), attrs.size());
+                    return new DefaultFileVisitDetails(child, childPath, stopFlag, fileSystem, fileSystem, fileSystem, isDirectory, attrs.lastModifiedTime().toMillis(), attrs.size());
                 }
 
                 @Override

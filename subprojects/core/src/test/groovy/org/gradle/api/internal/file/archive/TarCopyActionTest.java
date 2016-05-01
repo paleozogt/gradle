@@ -98,7 +98,7 @@ public class TarCopyActionTest {
         expected.put("dir", 2);
         expected.put("file", 1);
 
-        assertVisitsPermissions(new TarFileTree(tarFile, new FileResource(tarFile), null, fileSystem(), fileSystem(), directoryFileTreeFactory()),
+        assertVisitsPermissions(new TarFileTree(tarFile, new FileResource(tarFile), null, fileSystem(), fileSystem(), fileSystem(), directoryFileTreeFactory()),
                 expected);
     }
 

@@ -34,7 +34,6 @@ class GenericFileSystem implements FileSystem {
     private static final Logger LOGGER = LoggerFactory.getLogger(GenericFileSystem.class);
 
     final boolean caseSensitive;
-    final boolean canCreateSymbolicLink;
 
     private final FileModeMutator chmod;
     private final FileModeAccessor stat;
@@ -46,12 +45,12 @@ class GenericFileSystem implements FileSystem {
     }
 
     @Override
-    public boolean canCreateSymbolicLink() {
-        return canCreateSymbolicLink;
+    public boolean isSymlinkSupported() {
+        return symlink.isSymlinkSupported();
     }
 
     @Override
-    public void createSymbolicLink(File link, File target) {
+    public void symlink(File link, File target) {
         try {
             symlink.symlink(link, target);
         } catch (Exception e) {
@@ -60,7 +59,7 @@ class GenericFileSystem implements FileSystem {
     }
 
     @Override
-    public File readSymbolicLink(File link) throws FileException {
+    public File readLink(File link) throws FileException {
         try {
             return symlink.readLink(link);
         } catch (Exception e) {
@@ -95,7 +94,6 @@ class GenericFileSystem implements FileSystem {
         this.stat = stat;
         this.symlink = symlink;
         this.chmod = chmod;
-        canCreateSymbolicLink = symlink.isSymlinkSupported();
         String content = generateUniqueContent();
         File file = null;
         try {

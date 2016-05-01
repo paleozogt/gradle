@@ -18,6 +18,7 @@ package org.gradle.api.internal.file;
 import org.gradle.api.file.RelativePath;
 import org.gradle.internal.nativeintegration.filesystem.Chmod;
 import org.gradle.internal.nativeintegration.filesystem.Stat;
+import org.gradle.internal.nativeintegration.filesystem.Symlink;
 import org.gradle.util.GFileUtils;
 
 import java.io.File;
@@ -27,12 +28,14 @@ public class DefaultFileTreeElement extends AbstractFileTreeElement {
     private final File file;
     private final RelativePath relativePath;
     private final Stat stat;
+    private final Symlink symlink;
 
-    public DefaultFileTreeElement(File file, RelativePath relativePath, Chmod chmod, Stat stat) {
+    public DefaultFileTreeElement(File file, RelativePath relativePath, Chmod chmod, Stat stat, Symlink symlink) {
         super(chmod);
         this.file = file;
         this.relativePath = relativePath;
         this.stat = stat;
+        this.symlink = symlink;
     }
 
     public File getFile() {
@@ -54,7 +57,7 @@ public class DefaultFileTreeElement extends AbstractFileTreeElement {
     public boolean isDirectory() {
         return file.isDirectory();
     }
-    public boolean isSymbolicLink() { throw new RuntimeException("not implement yet"); }
+    public boolean isSymbolicLink() { return symlink.isSymlink(file); }
 
     public InputStream open() {
         return GFileUtils.openInputStream(file);

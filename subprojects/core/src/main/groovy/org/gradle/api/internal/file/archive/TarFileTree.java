@@ -32,6 +32,7 @@ import org.gradle.api.resources.internal.ReadableResourceInternal;
 import org.gradle.internal.hash.HashUtil;
 import org.gradle.internal.nativeintegration.filesystem.Chmod;
 import org.gradle.internal.nativeintegration.filesystem.Stat;
+import org.gradle.internal.nativeintegration.filesystem.Symlink;
 import org.gradle.util.GFileUtils;
 
 import java.io.File;
@@ -44,14 +45,16 @@ public class TarFileTree implements MinimalFileTree, FileSystemMirroringFileTree
     private final ReadableResourceInternal resource;
     private final Chmod chmod;
     private final Stat stat;
+    private final Symlink symlink;
     private final DirectoryFileTreeFactory directoryFileTreeFactory;
     private final File tmpDir;
 
-    public TarFileTree(@Nullable File tarFile, ReadableResourceInternal resource, File tmpDir, Chmod chmod, Stat stat, DirectoryFileTreeFactory directoryFileTreeFactory) {
+    public TarFileTree(@Nullable File tarFile, ReadableResourceInternal resource, File tmpDir, Chmod chmod, Stat stat, Symlink symlink, DirectoryFileTreeFactory directoryFileTreeFactory) {
         this.tarFile = tarFile;
         this.resource = resource;
         this.chmod = chmod;
         this.stat = stat;
+        this.symlink = symlink;
         this.directoryFileTreeFactory = directoryFileTreeFactory;
         String expandDirName = String.format("%s_%s", resource.getBaseName(), HashUtil.createCompactMD5(resource.getURI().toString()));
         this.tmpDir = new File(tmpDir, expandDirName);
@@ -208,12 +211,12 @@ public class TarFileTree implements MinimalFileTree, FileSystemMirroringFileTree
             visit(new FileVisitor() {
                 @Override
                 public void visitDir(FileVisitDetails dirDetails) {
-                    visitor.visitDir(new DefaultFileVisitDetails(dirDetails.getFile(), chmod, stat));
+                    visitor.visitDir(new DefaultFileVisitDetails(dirDetails.getFile(), chmod, stat, symlink));
                 }
 
                 @Override
                 public void visitFile(FileVisitDetails fileDetails) {
-                    visitor.visitFile(new DefaultFileVisitDetails(fileDetails.getFile(), chmod, stat));
+                    visitor.visitFile(new DefaultFileVisitDetails(fileDetails.getFile(), chmod, stat, symlink));
                 }
             });
         }
