@@ -150,6 +150,20 @@ public abstract class AbstractCopyTask extends ConventionTask implements CopySpe
     /**
      * {@inheritDoc}
      */
+    public void setSymlinkStrategy(SymlinkStrategy strategy) {
+        getRootSpec().setSymlinkStrategy(strategy);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public SymlinkStrategy getSymlinkStrategy() {
+        return getRootSpec().getSymlinkStrategy();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public AbstractCopyTask from(Object... sourcePaths) {
         getMainSpec().from(sourcePaths);
         return this;

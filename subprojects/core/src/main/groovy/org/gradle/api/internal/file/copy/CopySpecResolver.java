@@ -48,6 +48,7 @@ public interface CopySpecResolver {
     public List<Spec<FileTreeElement>> getAllExcludeSpecs();
 
     DuplicatesStrategy getDuplicatesStrategy();
+    SymlinkStrategy getSymlinkStrategy();
 
     void walk(Action<? super CopySpecResolver> action);
 

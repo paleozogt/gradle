@@ -17,12 +17,9 @@
 package org.gradle.api.internal.file.copy;
 
 import groovy.lang.Closure;
-import org.gradle.api.file.ContentFilterable;
-import org.gradle.api.file.DuplicatesStrategy;
-import org.gradle.api.file.FileVisitDetails;
-import org.gradle.api.file.RelativePath;
+import org.gradle.api.file.*;
 import org.gradle.api.internal.file.AbstractFileTreeElement;
-import org.gradle.internal.nativeintegration.filesystem.Chmod;
+import org.gradle.internal.nativeintegration.filesystem.*;
 
 import java.io.*;
 import java.util.Map;
@@ -35,6 +32,7 @@ public class DefaultFileCopyDetails extends AbstractFileTreeElement implements F
     private boolean excluded;
     private Integer mode;
     private DuplicatesStrategy duplicatesStrategy;
+    private SymlinkStrategy symlinkStrategy;
 
     public DefaultFileCopyDetails(FileVisitDetails fileDetails, CopySpecResolver specResolver, Chmod chmod) {
         super(chmod);
@@ -42,6 +40,7 @@ public class DefaultFileCopyDetails extends AbstractFileTreeElement implements F
         this.fileDetails = fileDetails;
         this.specResolver = specResolver;
         this.duplicatesStrategy = specResolver.getDuplicatesStrategy();
+        this.symlinkStrategy= specResolver.getSymlinkStrategy();
     }
 
     public boolean isIncludeEmptyDirs() {
@@ -192,6 +191,14 @@ public class DefaultFileCopyDetails extends AbstractFileTreeElement implements F
 
     public DuplicatesStrategy getDuplicatesStrategy() {
         return this.duplicatesStrategy;
+    }
+
+    public void setSymlinkStrategy(SymlinkStrategy strategy) {
+        this.symlinkStrategy = strategy;
+    }
+
+    public SymlinkStrategy getSymlinkStrategy() {
+        return this.symlinkStrategy;
     }
 
     public String getSourceName() {

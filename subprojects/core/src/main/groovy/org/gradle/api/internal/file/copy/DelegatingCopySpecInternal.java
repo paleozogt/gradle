@@ -54,6 +54,14 @@ public abstract class DelegatingCopySpecInternal implements CopySpecInternal {
         return getDelegateCopySpec().getDuplicatesStrategy();
     }
 
+    public void setSymlinkStrategy(SymlinkStrategy strategy) {
+        getDelegateCopySpec().setSymlinkStrategy(strategy);
+    }
+
+    public SymlinkStrategy getSymlinkStrategy() {
+        return getDelegateCopySpec().getSymlinkStrategy();
+    }
+
     public void setDuplicatesStrategy(DuplicatesStrategy strategy) {
         getDelegateCopySpec().setDuplicatesStrategy(strategy);
     }

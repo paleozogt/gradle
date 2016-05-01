@@ -53,8 +53,8 @@ public class DefaultCopySpec implements CopySpecInternal {
     private Boolean caseSensitive;
     private Boolean includeEmptyDirs;
     private DuplicatesStrategy duplicatesStrategy;
+    private SymlinkStrategy symlinkStrategy;
     private String filteringCharset;
-
 
     public DefaultCopySpec(FileResolver resolver, Instantiator instantiator) {
         this.fileResolver = resolver;
@@ -166,6 +166,10 @@ public class DefaultCopySpec implements CopySpecInternal {
     public void setDuplicatesStrategy(DuplicatesStrategy strategy) {
         this.duplicatesStrategy = strategy;
     }
+
+    public SymlinkStrategy getSymlinkStrategy() { return symlinkStrategy; }
+
+    public void setSymlinkStrategy(SymlinkStrategy strategy) { symlinkStrategy= strategy; }
 
     public CopySpec filesMatching(String pattern, Action<? super FileCopyDetails> action) {
         Spec<RelativePath> matcher = PatternMatcherFactory.getPatternMatcher(true, isCaseSensitive(), pattern);
@@ -451,6 +455,15 @@ public class DefaultCopySpec implements CopySpecInternal {
             return DuplicatesStrategy.INCLUDE;
         }
 
+        public SymlinkStrategy getSymlinkStrategy() {
+            if (symlinkStrategy != null) {
+                return symlinkStrategy;
+            }
+            if (parentResolver != null) {
+                return parentResolver.getSymlinkStrategy();
+            }
+            return SymlinkStrategy.FOLLOW;
+        }
 
         public boolean isCaseSensitive() {
             if (caseSensitive != null) {

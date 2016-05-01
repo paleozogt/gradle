@@ -66,6 +66,14 @@ public class CopySpecWrapper implements CopySpec {
         delegate.setDuplicatesStrategy(strategy);
     }
 
+    public void setSymlinkStrategy(SymlinkStrategy strategy) {
+        delegate.setSymlinkStrategy(strategy);
+    }
+
+    public SymlinkStrategy getSymlinkStrategy() {
+        return delegate.getSymlinkStrategy();
+    }
+
     public CopySpec filesMatching(String pattern, Action<? super FileCopyDetails> action) {
         delegate.filesMatching(pattern, action);
         return this;
